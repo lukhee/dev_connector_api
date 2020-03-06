@@ -1,0 +1,6 @@
+{
+    "mongoURI": "mongodb+srv://balogun:Balogun007.@devconnector-hsgft.mongodb.net/test?retryWrites=true&w=majority",
+    "jwtSecret": "mysecret",
+    "githubClientID": "2bb4fa9adf12ab555eb4",
+    "githubSecretKey": "595818d7cae38353f543002f84c6064c477009f9"
+}
