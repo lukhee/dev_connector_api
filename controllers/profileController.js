@@ -1,6 +1,7 @@
 const Profile = require('../Models/ProfileSchema')
 const { validationResult } = require('express-validator')
 const User = require('../Models/UserSchema')
+const request = require("request")
 const config = require('config')
 
 exports.getMyProfile = async (req, res, next)=>{
@@ -40,32 +41,31 @@ exports.updateProfile = async(req, res, next)=>{
     } = req.body
 
     // build profile object 
-    const profileFileds = {};
-    profileFileds.user = req.user;
-    if(company) profileFileds.company = company;
-    if(website) profileFileds.website = website;
-    if(location) profileFileds.location = location;
-    if(bio) profileFileds.bio = bio;
-    if(status) profileFileds.status = status;
-    if(githubusername) profileFileds.githubusername = githubusername;
+    const profileFields = {};
+    profileFields.user = req.user.id;
+    if(company) profileFields.company = company;
+    if(website) profileFields.website = website;
+    if(location) profileFields.location = location;
+    if(bio) profileFields.bio = bio;
+    if(status) profileFields.status = status;
+    if(githubusername) profileFields.githubusername = githubusername;
     if(skills) {
-        profileFileds.sklls =  skills.split(',').map(skill=>skill.trim())
+        profileFields.sklls =  skills.split(',').map(skill=>skill.trim())
     }
 
     // build profile social object
-    profileFileds.social = {}
-    if(youtube) profileFileds.social.youtube = youtube
-    if(facebook) profileFileds.social.facebook = facebook
-    if(twitter) profileFileds.social.twitter = twitter;
-    if(instagram) profileFileds.social.instagram = instagram;
-    if(linkedin) profileFileds.social.linkedin = linkedin
+    profileFields.social = {}
+    if(youtube) profileFields.social.youtube = youtube
+    if(facebook) profileFields.social.facebook = facebook
+    if(twitter) profileFields.social.twitter = twitter;
+    if(instagram) profileFields.social.instagram = instagram;
+    if(linkedin) profileFields.social.linkedin = linkedin
 
     try {
         let profile = await Profile.findOne({user: req.user.id})
-
         // update profile
         if(profile){
-            profile = await Profile.findByIdAndUpdate(
+            profile = await Profile.findOneAndUpdate(
                 { user: req.user.id },
                 { $set: profileFields },
                 { new: true }
@@ -74,7 +74,7 @@ exports.updateProfile = async(req, res, next)=>{
         }
 
         // create if not found
-        profile = new Profile(profileFileds)
+        profile = new Profile(profileFields)
 
         await profile.save()
         res.json(profile)
@@ -161,6 +161,7 @@ exports.addExperience = async(req, res, next)=> {
 
     try {
         const profile = await Profile.findOne({user: req.user.id})
+        console.log(profile)
         profile.experience.unshift(newExp)
         await profile.save()
         res.json(profile)
@@ -235,14 +236,22 @@ exports.deleteEducation = async(req, res, next)=> {
     }
 }
 
-exports.getGithubRepos = (req, res, next)=> {
+exports.getGithubRepos = async (req, res, next)=> {
     try {
-        // const options = {
-        //     'url' : "https://api.github.com",
-        //     'method': "GET",
-        //     'header': ""
-        // }
+        const options = {
+            'url' : "https://api.github.com/orgs/${req.params.username}/repos?per_page=5&sort=created:asc&client_id=${config.get('githubClientID')}&client_secret=${config.get('githubSecretKey')}",
+            'method': "GET",
+            'headers': { 'user-agent': 'node.js'}
+        }
+        request(options, (error, response, body) =>{
+            if(error) console.error(error);
+            console.log(response)
+            if(response.statusCode !== 200){
+                return res.status(404).json({ msg: "No Github profile found" })
+            }
 
+            res.json(JSON.stringify(body))
+        })
     } catch (error) {
         console.error(error.message)
         res.status(500).send("Server Error")

@@ -78,8 +78,8 @@ exports.likePost = async (req, res, next)=> {
         const post = await Post.findById(req.params.id);
 
         // Chech if its like
-        if(post.likes.filter(like = like.user.toString() ===req.user.id).length > 0){
-            return res.status(400).json({msg: 'Post already like'})
+        if(post.likes.filter(like => like.user.toString() ===req.user.id).length > 0){
+            return res.status(400).json({msg: 'Post already like by you'})
         }
 
         post.likes.unshift({ user: req.user.id })
@@ -101,21 +101,21 @@ exports.UnlikePost = async(req, res, next)=> {
         const post = await Post.findById(req.params.id);
 
         // Chech if its like
-        if(post.likes.filter(like = like.user.toString() ===req.user.id).length === 0 ){            return res.status(400).json({msg: 'Post already like'})
-            return res.status(400).json({msg: 'Post already like'})
+        if(post.likes.filter(like => like.user.toString() ===req.user.id).length === 0 ){
+            return res.status(400).json({msg: 'Post can not be unlike'})
         }
 
-        const removeIndex = post.lokes.map(like => like.user.toString().indexOf(req.user.id))
-        post.like.splice(removeIndex)
+        const removeIndex = post.likes.map(like => like.user.toString().indexOf(req.user.id))
+        post.likes.splice(removeIndex)
 
         await post.save()
 
         res.json(post.likes)
     } catch (error) {
         if(error.kind === "ObjectId"){
-            return res.status(404).json({msg: "Post has not yet been like"})
+            console.log(error.kind)
+            return res.status(404).json({msg: "Post not found"})
         }
-        console.error(error.message)
         res.status(500).send('Server Down')
     }
 }
@@ -127,7 +127,7 @@ exports.addComment = async (req, res, next)=> {
     }
     try {
         const user = await User.findOne({_id: req.user.id}).select('-password')
-        const post = Post.findById(req.params.id)
+        const post = await Post.findById(req.params.id)
 
         const newComment = {
             text: req.body.text,
@@ -148,12 +148,13 @@ exports.addComment = async (req, res, next)=> {
 
 exports.deleteComment = async(req, res, next)=> {
     try {
-        const user = await User.findOne({_id: req.user.id}).select('-password')
-        const post = Post.findById(req.params.id)
+        // const user = await User.findOne({_id: req.user.id}).select('-password')
+        const post = await Post.findById(req.params.id)
 
         const comment = post.comments.find(
             comment => comment.id === req.params.comment_id
         );
+
         // Check if comment exist
         if(!comment){
             return res.status(404).json({msg: "Comment does not exit"})
@@ -166,9 +167,9 @@ exports.deleteComment = async(req, res, next)=> {
         // Get remove index
         const removeIndex = post.comments.map(comment => comment.user.toString().indexOf(req.user.id))
 
-        await post.save()
+        post.comments.splice(removeIndex, 1)
 
-        res.json(post.comments)
+        await post.save()
 
         res.json(post.comments)
     } catch (error) {

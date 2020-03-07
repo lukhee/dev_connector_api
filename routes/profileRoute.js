@@ -26,7 +26,7 @@ router.get('/profiles', profileController.getAllProfiles)
 //  @route  Get /profile/user/user_id
 //  @access public
 //  @desc   Get profile by id
-router.get('/profiles', profileController.getUserProfileByID)
+router.get('/:user_id', profileController.getUserProfileByID)
 
 //  @route  Delete /profile/user/user_id
 //  @access Private
