@@ -4,6 +4,8 @@ const profileRoute = require('./routes/profileRoute')
 const postRoute = require('./routes/postRoute')
 const authRoute = require('./routes/authRoute')
 const connectDB = require('./config/db')
+const bodyParser = require('body-parser')
+const cors = require('cors')
 const { check, validationResult } = require('express-validator');
 
 const app = express()
@@ -12,13 +14,17 @@ const app = express()
 connectDB()
 
 // Init Middleware
-app.use(express.json({extended: false}))
+app.use(cors())
+// app.use(express.json({extended: false}))
+//body parser middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // Defined Routes
-app.use('/user', userRoute)
-app.use('/profile', profileRoute)
-app.use('/post', postRoute)
-app.use('/auth', authRoute)
+app.use('/api/user', userRoute)
+app.use('/api/profile', profileRoute)
+app.use('/api/post', postRoute)
+app.use('/api/auth', authRoute)
 app.use('*', (req, res, next)=> {
     res.status(500).json({msg: "Page not found"})
 })

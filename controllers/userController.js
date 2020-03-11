@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken')
 const config = require("config")
 
 exports.createUser = async  (req, res, next)=>{
+    console.log(req.body)
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -34,7 +35,6 @@ exports.createUser = async  (req, res, next)=>{
         user.password = await bcrypt.hash(password, salt)
 
         await user.save() 
-        console.log(user)
 
         const payload = { 
             user: {
