@@ -63,6 +63,7 @@ exports.updateProfile = async(req, res, next)=>{
 
     try {
         let profile = await Profile.findOne({user: req.user.id})
+
         // update profile
         if(profile){
             profile = await Profile.findOneAndUpdate(

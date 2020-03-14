@@ -8,7 +8,7 @@ const { check } = require('express-validator')
 // @route Get profile/me
 // @access Private
 // @desc   get current users profile
-router.get('/me',auth, profileController.getMyProfile)
+router.get('/me',auth , profileController.getMyProfile)
 
 // @route  POST profile
 // @access Private
