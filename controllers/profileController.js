@@ -1,6 +1,7 @@
 const Profile = require('../Models/ProfileSchema')
 const { validationResult } = require('express-validator')
 const User = require('../Models/UserSchema')
+const Post = require('../Models/PostModel')
 const request = require("request")
 const config = require('config')
 
@@ -121,7 +122,7 @@ exports.getUserProfileByID = async (req, res, next)=> {
 exports.deleteProfile = async (req, res, next)=> {
     try {
         // Remove posts
-
+        await Post.deleteMany({ user: req.user.id })
         // Remove Profile
         await Profile.findOneAndRemove({user: req.user.id})
         // Remove User

@@ -41,6 +41,9 @@ experience: [
         location: {
             type: String,
         },
+        website: {
+            type: String,
+        },
         from: {
             type: Date,
             required: true
@@ -92,10 +95,10 @@ social: {
         type: String,
     },
     linkedin: {
-        type: Date,
+        type: String,
     },
     instagram: {
-        type: Date,
+        type: String,
     }
 }
 }, {

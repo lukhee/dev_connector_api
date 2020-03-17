@@ -15,7 +15,7 @@ router.get('/me',auth , profileController.getMyProfile)
 // @desc   Create or update profile
 router.post('/', [auth, [
     check('status', 'Status is required').not().isEmpty(),
-    check('skills', 'Skills ir reqired')
+    check('skills', 'Skills is required')
 ]], profileController.updateProfile)
 
 // @route  Get /profiles
