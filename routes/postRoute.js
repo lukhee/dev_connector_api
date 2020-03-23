@@ -37,7 +37,7 @@ router.put('/like/:id', auth, postController.likePost)
 router.put('/unlike/:id', auth, postController.UnlikePost)
 
 //  @route  PUT /comment/:id
-//  @access Private
+//  @access Private 
 //  @desc   Add comment
 router.put('/comment/:id' , [auth, [
     check('text', 'Text is required').not().isEmpty()

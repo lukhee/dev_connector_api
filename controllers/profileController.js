@@ -4,6 +4,7 @@ const User = require('../Models/UserSchema')
 const Post = require('../Models/PostModel')
 const request = require("request")
 const config = require('config')
+const axios = require('axios')
 
 exports.getMyProfile = async (req, res, next)=>{
     try {
@@ -241,21 +242,25 @@ exports.deleteEducation = async(req, res, next)=> {
 exports.getGithubRepos = async (req, res, next)=> {
     try {
         const options = {
-            'url' : "https://api.github.com/orgs/${req.params.username}/repos?per_page=5&sort=created:asc&client_id=${config.get('githubClientID')}&client_secret=${config.get('githubSecretKey')}",
-            'method': "GET",
-            'headers': { 'user-agent': 'node.js'}
+            uri: `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc&client_id=${config.get('githubClientID')}&client_secret=${config.get('githubSecretKey')}`,
+            method: 'GET',
+            headers: { 'user-agent': 'node.js'}
         }
-        request(options, (error, response, body) =>{
-            if(error) console.error(error);
-            console.log(response)
-            if(response.statusCode !== 200){
-                return res.status(404).json({ msg: "No Github profile found" })
-            }
+        
+        request(options, (error, response, body) => {
+            if(error) console.error(error)
 
-            res.json(JSON.stringify(body))
-        })
+            if(response.statusCode !== 200) {
+                return res.status(404).json({ msg: 'No Github profile found' });
+            }
+            res.json(JSON.parse(body));
+        });
     } catch (error) {
         console.error(error.message)
+        console.log(error.response.status)
+        if(error.response.status === 404){
+            return res.status(400).json({msg: 'Github profile not found'})
+        }
         res.status(500).send("Server Error")
     }
 }

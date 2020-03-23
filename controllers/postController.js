@@ -54,10 +54,9 @@ exports.getPostById = async(req, res, next)=> {
 
 exports.deletePostById = async (req, res, next)=> {
     try {
-        await Post.findById(req.params.id)
-
+        const post = await Post.findById(req.params.id)
         // Check user
-        if(!req.user.toString() !== req.params.post_id){
+        if(req.user.id !== post.user.toString()){
             return res.status(400).json({msg: "User not authorized"})
         }
 
@@ -175,5 +174,5 @@ exports.deleteComment = async(req, res, next)=> {
     } catch (error) {
         console.error(error.message)
         res.status(500).send('Server Error')
-    }
+    } 
 }
